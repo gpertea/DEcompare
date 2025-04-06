@@ -1,0 +1,61 @@
+/* www/styles.css */
+
+.bslib-sidebar-layout > .sidebar {
+  min-width: 450px; /* Increased width */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.bslib-sidebar-layout > .main {
+  min-width: 700px; /* Increased width */
+  min-height: 600px;
+}
+/* Make fonts smaller */
+body {
+    font-size: 0.9rem; /* Smaller base font */
+}
+.card-header, .card-title { /* Target card headers/titles */
+    font-size: 1.1rem; /* Smaller heading font */
+    font-weight: 500; /* Less bold */
+}
+label, .control-label, .shiny-input-container label { /* Target input labels */
+    font-size: 0.85rem; /* Smaller label font */
+    margin-bottom: 2px; /* Reduce space below label */
+}
+.shiny-input-container {
+    margin-bottom: 8px; /* Reduce space between input rows */
+}
+/* Reduce padding inside cards if needed */
+.card-body {
+    padding: 0.8rem;
+}
+/* Style for the summary text below the plot */
+.corr-summary-text {
+  margin-top: 15px;
+  padding: 10px;
+  border-top: 1px solid #eee;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.corr-summary-text strong {
+    color: #007bff; /* Bootstrap primary blue for emphasis */
+}
+
+/* Optional: Style for the loaded filename text */
+.shiny-text-output#deres-1-fn_display,
+.shiny-text-output#deres-2-fn_display {
+    font-size: 0.85em;
+    color: grey;
+    margin-top: -10px; /* Adjust spacing */
+    margin-bottom: 10px;
+}
+
+/* Optional: Style for feature count text */
+.shiny-html-output#deres-1-feat_counts_init,
+.shiny-html-output#deres-2-feat_counts_init,
+.shiny-html-output#deres-1-feat_counts_select,
+.shiny-html-output#deres-2-feat_counts_select {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
