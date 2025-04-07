@@ -30,10 +30,10 @@ ui_data_loader <- function(id, title = "DE results set", default_label = "DE-res
                 textInput(ns("label_in"), label = NULL, value = default_label, width = "100%", placeholder = default_label) |>
                   tagAppendAttributes(maxlength = MAX_LABEL_LEN)
             ),
-            div(class = "col-auto mx-3",
+            div(class = "col-auto mx-3", style='color: #606060;',
                 htmlOutput(ns("feature_count_display"), inline = TRUE)
             ),
-            div(class = "col-auto",
+            div(class = "col-auto", style='color: #606060;',
                 htmlOutput(ns("fdr_count_display"), inline = TRUE)
             )
         ),
