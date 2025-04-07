@@ -47,6 +47,23 @@ ui_main <- function() {
       ui_data_loader(id = "de2", title = "DE results set 2", default_label = DEFAULT_LABEL_2)
 
     ), # end sidebar
+    ## add meta tags to prevent caching of fileInput filenames etc.
+    tags$head(
+        tags$meta(
+        "Cache-Control" = "no-cache, no-store, must-revalidate"
+        ),
+        tags$meta(
+        "Pragma" = "no-cache"
+        ),
+        tags$meta(
+        "Expires" = "0"
+        ),
+        tags$script(HTML("
+        $(document).ready(function() {
+        // Reset all file inputs when page loads
+        $('input[type=\"file\"]').val('');
+      }); "))
+    ),
 
     # Main content area for CAVS
     ui_cavs(id = "cavs")

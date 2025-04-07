@@ -40,9 +40,9 @@ ui_data_loader <- function(id, title = "DE results set", default_label = "DE-res
         # Row 2: File Input & Filename (No margin bottom: mb-0 or remove mb-*)
         div(class = "row g-0 align-items-center smaller-row", # Removed mb-1
             div(class = "col-12",
-                # Minimal file input - styling via CSS
-                #fileInput(ns("file_in"), label = NULL, buttonLabel = "Browse..", placeholder = "", width = "100px")
-                customFileInput(ns("file_in"), label = NULL)
+                #customFileInput(ns("file_in"), label = NULL)
+                # Replace direct call with uiOutput
+                uiOutput(ns("file_input_ui"))
             ) #,
             # div(class = "col",
             #    span(class="text-muted small file-name-display",
