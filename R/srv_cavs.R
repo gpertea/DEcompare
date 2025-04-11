@@ -2,6 +2,7 @@
 
 library(shiny)
 library(data.table)
+library(plotly) # Add plotly library
 
 MIN_OVERLAP_PCT <- 0.5
 
@@ -144,7 +145,83 @@ srv_cavs <- function(id, data1, data2) {
     })
     # --- Plot Rendering (Placeholders for now) ---
     # These will eventually use filtered_overlap_metrics()$merged_data or similar
-    # output$corrPlot <- renderPlotly({ ... })
+
+     output$corrPlot <- renderPlotly({
+        # Require metrics and the merged data within it
+        metrics <- filtered_overlap_metrics()
+        validate(
+            need(metrics, "Load two datasets and adjust filters to generate plot."),
+            need(nrow(metrics$merged_data) > 1, "Need at least 2 overlapping features to plot correlation.")
+        )
+
+        merged_dt <- metrics$merged_data
+        dt1_filt <- data1$filtered()
+        dt2_filt <- data2$filtered()
+        lab1 <- data1$label()
+        lab2 <- data2$label()
+
+        # Calculate full axis ranges from the complete filtered datasets
+        range1 <- range(dt1_filt$t, na.rm = TRUE)
+        range2 <- range(dt2_filt$t, na.rm = TRUE)
+        # Add some padding to ranges
+        padding1 <- (range1[2] - range1[1]) * 0.05
+        padding2 <- (range2[2] - range2[1]) * 0.05
+        x_range <- c(range1[1] - padding1, range1[2] + padding1)
+        y_range <- c(range2[1] - padding2, range2[2] + padding2)
+
+        # Calculate color based on rank concordance
+        # Rank by descending t-statistic
+        merged_dt[, r1 := rank(-t1)]
+        merged_dt[, r2 := rank(-t2)]
+        # Calculate product of deviations from mean rank
+        merged_dt[, color_val := (r1 - mean(r1)) * (r2 - mean(r2))]
+
+        # Determine symmetric range for color bar
+        max_abs_val <- max(abs(merged_dt$color_val), na.rm = TRUE)
+        # Handle cases with zero variance or NAs -> uniform color
+        if(is.na(max_abs_val) || max_abs_val == 0) {
+            max_abs_val <- 1 # Set a nominal range to avoid errors
+        }
+
+
+        # Create plot
+        p <- plot_ly(
+                data = merged_dt,
+                x = ~t1,
+                y = ~t2,
+                type = "scattergl",
+                mode = "markers",
+                # Color definition moved to marker list
+                marker = list(
+                    color = ~color_val,       # Variable to map color to
+                    colorscale = "RdBu",      # Red (positive/concordant) - Blue (negative/discordant)
+                    cmin = -max_abs_val,      # Minimum value for the color scale
+                    cmax = max_abs_val,       # Maximum value for the color scale
+                    size = 5,
+                    opacity = 0.7,
+                    colorbar = list(title = "Rank Concordance") # Define color bar here
+                ),
+                hoverinfo = "text",
+                text = ~paste("fid:", fid, "<br>", lab1, ":", round(t1, 2), "<br>", lab2, ":", round(t2, 2))
+            ) |>
+            layout(
+                xaxis = list(title = lab1, range = x_range, zeroline=TRUE, zerolinecolor='#cccccc', zerolinewidth=1),
+                yaxis = list(title = lab2, range = y_range, zeroline=TRUE, zerolinecolor='#cccccc', zerolinewidth=1),
+                showlegend = FALSE,
+                margin = list(l = 50, r = 20, t = 30, b = 50) # Adjust margins
+            )
+            # Removed separate colorbar() call
+
+        # Add Spearman correlation line (y = x for perfect rank correlation)
+        # This isn't quite right for t-stats, but visually indicates concordance trend
+        # p <- p |> add_lines(x = x_range, y = x_range,
+        #                      line = list(color = 'grey', width = 1, dash = 'dash'),
+        #                      hoverinfo = 'none', showlegend=FALSE, inherit = FALSE)
+
+        return(p)
+
+    })
+
     # output$catRankPlot <- renderPlotly({ ... })
     # output$catPvalPlot <- renderPlotly({ ... })
 

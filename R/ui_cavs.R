@@ -7,17 +7,17 @@ library(plotly)
 ui_cavs <- function(id) {
   ns <- NS(id)
 
+  # Remove the explicit height style from this div
   div(
-    style = paste0("min-width:", MIN_CAVS_WIDTH, "; min-height:", MIN_CAVS_HEIGHT, "; height: calc(100vh - 50px); display: flex; flex-direction: column;"), # Adjust height calc if needed
+    style = paste0("min-width:", MIN_CAVS_WIDTH, "; min-height:", MIN_CAVS_HEIGHT, "; display: flex; flex-direction: column;"), # Removed height: calc(...)
 
     # Tabset Panel (will hold plots later)
     bslib::navset_tab(
       id = ns("cavs_tabs"),
       bslib::nav_panel("Correlation",
-         div(style="flex-grow: 1; min-height: 100px;", # Placeholder for plot area
-             h4("Correlation Plot Area (placeholder)")
-             # plotlyOutput(ns("corrPlot"), height = "100%") # Add later
-         )
+         # Let plotlyOutput directly fill the nav_panel space
+         # The nav_panel itself will grow due to the parent navset_tab style
+                 plotlyOutput(ns("corrPlot"), height = "100%")
       ),
       bslib::nav_panel("CAT-rank",
          div(style="flex-grow: 1; min-height: 100px;", # Placeholder for plot area

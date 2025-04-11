@@ -177,24 +177,29 @@ handleFidPrefix <- function(dt1, dt2) {
   sym_col1 <- if ("gene_name" %in% names(dt1_mod)) "gene_name" else if ("Symbol" %in% names(dt1_mod)) "Symbol" else NULL
   sym_col2 <- if ("gene_name" %in% names(dt2_mod)) "gene_name" else if ("Symbol" %in% names(dt2_mod)) "Symbol" else NULL
 
+  # Check if fids already contain a pipe character, suggesting a prefix exists
+  prefix_exists1 <- any(grepl("\\|", dt1_mod$fid))
+  prefix_exists2 <- any(grepl("\\|", dt2_mod$fid))
+
   # Scenario 1: Both have symbol columns
   if (!is.null(sym_col1) && !is.null(sym_col2)) {
-    # Add prefix if not already present
-    if (!all(startsWith(dt1_mod$fid, "GSYM|"))) {
-      dt1_mod[, fid := paste0("GSYM|", get(sym_col1), "_", fid)]
+    # Add prefix only if it doesn't already exist
+    if (!prefix_exists1) {
+      # Ensure symbol column doesn't contain NA or empty strings before pasting
+      dt1_mod[!is.na(get(sym_col1)) & get(sym_col1) != "", fid := paste0(get(sym_col1), "|", fid)]
     }
-    if (!all(startsWith(dt2_mod$fid, "GSYM|"))) {
-      dt2_mod[, fid := paste0("GSYM|", get(sym_col2), "_", fid)]
+    if (!prefix_exists2) {
+      dt2_mod[!is.na(get(sym_col2)) & get(sym_col2) != "", fid := paste0(get(sym_col2), "|", fid)]
     }
   }
   # Scenario 2 & 3: Only one has symbol column, or neither has
   else {
-    # Remove prefix if present in either
-    if (any(startsWith(dt1_mod$fid, "GSYM|"))) {
-      dt1_mod[, fid := sub("^GSYM\\|.*?_", "", fid)] # Remove prefix and symbol part
+    # Remove prefix if present in either (if one lacks symbols, both should lack prefix)
+    if (prefix_exists1) {
+      dt1_mod[, fid := sub("^.*?\\|", "", fid)] # Remove prefix up to the first pipe
     }
-    if (any(startsWith(dt2_mod$fid, "GSYM|"))) {
-      dt2_mod[, fid := sub("^GSYM\\|.*?_", "", fid)] # Remove prefix and symbol part
+    if (prefix_exists2) {
+      dt2_mod[, fid := sub("^.*?\\|", "", fid)] # Remove prefix up to the first pipe
     }
   }
 
